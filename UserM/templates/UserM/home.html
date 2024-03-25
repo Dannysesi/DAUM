@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Home Page{% endblock %}
 {% block content %}
+    {% if user.group == default %}
+    <p>you are a default user</p>
+    {% else %}
+    <p>you are a mod user</p>
+    {% endif %}
     {% for post in posts %}
     <div class="card mt-2">
         <div class="card-header"><strong>@{{ post.author.username }}</strong></div>
@@ -10,12 +15,15 @@
                 <p>{{ post.description }}</p>
             </div>
             <div>
-                {% if user == post.author %}
-                    <form method="post">
+                <form method="post">
+                    {% if user == post.author or perms.UserM.delete_post %}
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger" name="post-id" value="{{post.id}}">Delete</button>
-                    </form>
-                {% endif %}
+                        {% endif %}
+                        {% if user.is_staff %}
+                        <button type="submit" class="btn btn-warning" name="user-id" value="{{post.author.id}}">Ban User</button>
+                        {% endif %}
+                </form>
             </div>
             <div class="card-footer text-muted">{{ post.created_at }}</div>
         </div>
